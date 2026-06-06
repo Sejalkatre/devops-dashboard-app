@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DevOps Dashboard</title>
+</head>
+
+<body>
+
+<h1>DevOps Operations Dashboard</h1>
+
+<h3 id="version"></h3>
+
+<h3 id="hostname"></h3>
+
+<h3 id="environment"></h3>
+
+<button onclick="window.open('/api/load?duration=10')">
+Generate 10s Load
+</button>
+
+<button onclick="window.open('/api/load?duration=30')">
+Generate 30s Load
+</button>
+
+<script>
+
+fetch('/api/version')
+.then(r=>r.json())
+.then(d=>{
+document.getElementById('version')
+.innerText='Version : '+d.version;
+});
+
+fetch('/api/config')
+.then(r=>r.json())
+.then(d=>{
+document.getElementById('environment')
+.innerText='Environment : '+d.environment;
+});
+
+document.getElementById('hostname')
+.innerText='Pod : '+window.location.hostname;
+
+</script>
+
+</body>
+</html>
