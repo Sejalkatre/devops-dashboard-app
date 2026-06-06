@@ -1,0 +1,13 @@
+{
+  "name": "devops-dashboard-app",
+  "version": "1.0.0",
+  "description": "DevOps Dashboard Application",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "prom-client": "^15.1.0"
+  }
+}
