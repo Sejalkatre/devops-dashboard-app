@@ -30,11 +30,12 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                    SonarScanner \
-                    -Dsonar.projectKey=devops-dashboard \
-                    -Dsonar.projectName=devops-dashboard \
-                    -Dsonar.sources=. \
-                    -Dsonar.sourceEncoding=UTF-8
+                    sonar-scanner \
+                      -Dsonar.projectKey=devops-dashboard \
+                      -Dsonar.projectName=devops-dashboard \
+                      -Dsonar.sources=. \
+                      -Dsonar.sourceEncoding=UTF-8 \
+                      -Dsonar.host.url=http://localhost:9000
                     """
                 }
             }
@@ -58,15 +59,14 @@ pipeline {
         stage('Generate Version') {
             steps {
                 script {
-
                     def latestTag = sh(
-                        script: '''
+                        script: """
                         curl -s https://hub.docker.com/v2/repositories/sejalkatre/devops-dashboard/tags?page_size=100 |
-                        jq -r ".results[].name" |
-                        grep "^v" |
+                        jq -r '.results[].name' |
+                        grep '^v' |
                         sort -V |
                         tail -1
-                        ''',
+                        """,
                         returnStdout: true
                     ).trim()
 
@@ -74,12 +74,12 @@ pipeline {
                         latestTag = "v0"
                     }
 
-                    def versionNumber = latestTag.replace("v","").toInteger()
+                    def versionNumber = latestTag.replace("v", "").toInteger()
                     versionNumber++
 
                     env.NEW_TAG = "v${versionNumber}"
 
-                    echo "New Image Tag = ${env.NEW_TAG}"
+                    echo "New Docker Image Tag = ${env.NEW_TAG}"
                 }
             }
         }
@@ -92,13 +92,11 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-creds',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )
-                ]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
                     sh '''
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     '''
@@ -114,13 +112,11 @@ pipeline {
 
         stage('Update GitOps Repo') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-creds',
-                        usernameVariable: 'GIT_USER',
-                        passwordVariable: 'GIT_PASS'
-                    )
-                ]) {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+                )]) {
 
                     sh """
                     rm -rf gitops
@@ -145,12 +141,12 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline Successful"
-            echo "Image Tag = ${env.NEW_TAG}"
+            echo "✅ Pipeline Successful"
+            echo "Docker Image Tag = ${env.NEW_TAG}"
         }
 
         failure {
-            echo "Pipeline Failed"
+            echo "❌ Pipeline Failed"
         }
 
         always {
