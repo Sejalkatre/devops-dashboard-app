@@ -27,25 +27,19 @@ stages {
         }
     }
 
-   stage('SonarQube Analysis') {
-steps {
-script {
-
-        def scannerHome = tool 'SonarScanner'
-
-        withSonarQubeEnv('SonarQube') {
-
-            sh """
-            ${scannerHome}/bin/sonar-scanner \
-            -Dsonar.projectKey=devops-dashboard \
-            -Dsonar.projectName=devops-dashboard \
-            -Dsonar.sources=. \
-            -Dsonar.sourceEncoding=UTF-8
-            """
+ stage('Quality Gate') {
+    steps {
+        script {
+            timeout(time: 5, unit: 'MINUTES') {
+                def qg = waitForQualityGate()
+                if (qg.status != 'OK') {
+                    error "❌ Pipeline failed due to Quality Gate: ${qg.status}"
+                } else {
+                    echo "✅ Quality Gate passed"
+                }
+            }
         }
     }
-}
-
 }
 
 
