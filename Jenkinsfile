@@ -31,7 +31,6 @@ stages {
 steps {
 script {
 
-```
         def scannerHome = tool 'SonarScanner'
 
         withSonarQubeEnv('SonarQube') {
@@ -46,7 +45,6 @@ script {
         }
     }
 }
-```
 
 }
 
