@@ -30,7 +30,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                    sonarScanner \
+                    SonarScanner \
                     -Dsonar.projectKey=devops-dashboard \
                     -Dsonar.projectName=devops-dashboard \
                     -Dsonar.sources=. \
