@@ -1,6 +1,5 @@
 pipeline {
 
-```
 agent any
 
 environment {
@@ -54,13 +53,13 @@ stages {
             script {
 
                 def latestTag = sh(
-                    script: """
+                    script: '''
                     curl -s https://hub.docker.com/v2/repositories/sejalkatre/devops-dashboard/tags?page_size=100 |
-                    jq -r '.results[].name' |
-                    grep '^v' |
+                    jq -r ".results[].name" |
+                    grep "^v" |
                     sort -V |
                     tail -1
-                    """,
+                    ''',
                     returnStdout: true
                 ).trim()
 
@@ -69,7 +68,6 @@ stages {
                 }
 
                 def versionNumber = latestTag.replace("v","").toInteger()
-
                 versionNumber++
 
                 env.NEW_TAG = "v${versionNumber}"
@@ -81,9 +79,7 @@ stages {
 
     stage('Build Docker Image') {
         steps {
-            sh """
-            docker build -t ${IMAGE_NAME}:${NEW_TAG} .
-            """
+            sh "docker build -t ${IMAGE_NAME}:${NEW_TAG} ."
         }
     }
 
@@ -96,7 +92,6 @@ stages {
                     passwordVariable: 'DOCKER_PASS'
                 )
             ]) {
-
                 sh '''
                 echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                 '''
@@ -106,9 +101,7 @@ stages {
 
     stage('Push Docker Image') {
         steps {
-            sh """
-            docker push ${IMAGE_NAME}:${NEW_TAG}
-            """
+            sh "docker push ${IMAGE_NAME}:${NEW_TAG}"
         }
     }
 
@@ -132,8 +125,8 @@ stages {
 
                 sed -i 's#image: .*#image: sejalkatre/devops-dashboard:${NEW_TAG}#g' deployment.yaml
 
-                git config user.name Jenkins
-                git config user.email jenkins@local
+                git config user.name "Jenkins"
+                git config user.email "jenkins@local"
 
                 git add .
                 git commit -m "Updated image to ${NEW_TAG}" || true
@@ -160,6 +153,5 @@ post {
         cleanWs()
     }
 }
-```
 
 }
