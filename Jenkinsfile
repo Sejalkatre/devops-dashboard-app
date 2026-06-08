@@ -57,32 +57,36 @@ pipeline {
         }
 
         stage('Generate Version') {
-            steps {
-                script {
-                    def latestTag = sh(
-                        script: """
-                        curl -s https://hub.docker.com/v2/repositories/sejalkatre/devops-dashboard/tags?page_size=100 |
-                        jq -r '.results[].name' |
-                        grep '^v' |
-                        sort -V |
-                        tail -1
-                        """,
-                        returnStdout: true
-                    ).trim()
+    steps {
+        script {
 
-                    if (!latestTag) {
-                        latestTag = "v0"
-                    }
+            sh """
+            rm -rf gitops-version
+            git clone https://github.com/Sejalkatre/devops-dashboard-gitops.git gitops-version
+            """
 
-                    def versionNumber = latestTag.replace("v", "").toInteger()
-                    versionNumber++
+            def currentTag = sh(
+                script: """
+                grep 'image:' gitops-version/environments/dev/deployment.yaml \
+                | awk -F':' '{print \$NF}'
+                """,
+                returnStdout: true
+            ).trim()
 
-                    env.NEW_TAG = "v${versionNumber}"
-
-                    echo "New Docker Image Tag = ${env.NEW_TAG}"
-                }
+            if (!currentTag) {
+                currentTag = "v0"
             }
+
+            def versionNumber = currentTag.replace("v", "").toInteger()
+            versionNumber++
+
+            env.NEW_TAG = "v${versionNumber}"
+
+            echo "Current Tag = ${currentTag}"
+            echo "New Tag = ${env.NEW_TAG}"
         }
+    }
+}
 
         stage('Build Docker Image') {
             steps {
