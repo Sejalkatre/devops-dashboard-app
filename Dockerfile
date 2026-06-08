@@ -1,9 +1,13 @@
-FROM node:20-alpine AS runtime
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY --from=dependencies /app/node_modules ./node_modules
-COPY . .
+COPY package*.json ./
+
+RUN npm ci
+
+COPY src ./src
+COPY app.js .
 
 RUN chown -R node:node /app
 
