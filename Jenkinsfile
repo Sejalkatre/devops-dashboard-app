@@ -110,36 +110,38 @@ pipeline {
             }
         }
 
-        stage('Update GitOps Repo') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'github-creds',
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_PASS'
-        )]) {
+              stage('Update GitOps Repo') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-creds',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_PASS'
+                )]) {
 
-            sh '''
-                rm -rf gitops
+                    sh '''
+                        rm -rf gitops
 
-                git clone https://${GIT_USER}:${GIT_PASS}@github.com/Sejalkatre/devops-dashboard-gitops.git gitops
+                        git clone https://${GIT_USER}:${GIT_PASS}@github.com/Sejalkatre/devops-dashboard-gitops.git gitops
 
-                cd gitops
+                        cd gitops
 
-                sed -i "s#image: .*#image: sejalkatre/devops-dashboard:${NEW_TAG}#g" deployment.yaml
+                        sed -i "s#image: .*#image: sejalkatre/devops-dashboard:${NEW_TAG}#g" deployment.yaml
 
-                git config user.name "Jenkins"
-                git config user.email "jenkins@local"
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@local"
 
-                git add deployment.yaml
+                        git add deployment.yaml
 
-                git commit -m "Update image to ${NEW_TAG}" || true
+                        git commit -m "Update image to ${NEW_TAG}" || true
 
-                git push origin main
-            '''
+                        git push origin main
+                    '''
+                }
+            }
         }
-    }
-}
-    }
+
+    }   // <-- THIS BRACE WAS MISSING (closes stages)
+
     post {
         success {
             echo "✅ Pipeline Successful"
@@ -154,4 +156,4 @@ pipeline {
             cleanWs()
         }
     }
-}
+}   // <-- closes pipeline
