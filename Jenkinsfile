@@ -56,34 +56,25 @@ pipeline {
             }
         }
 
-        stage('Generate Version') {
+        stage('Check Source Changes') {
     steps {
         script {
 
-            sh """
-            rm -rf gitops-version
-            git clone https://github.com/Sejalkatre/devops-dashboard-gitops.git gitops-version
-            """
-
-            def currentTag = sh(
-                script: """
-                grep 'image:' gitops-version/environments/dev/deployment.yaml \
-                | awk -F':' '{print \$NF}'
-                """,
+            def changedFiles = sh(
+                script: "git diff --name-only HEAD~1 HEAD",
                 returnStdout: true
             ).trim()
 
-            if (!currentTag) {
-                currentTag = "v0"
+            echo "Changed Files:"
+            echo changedFiles
+
+            if (changedFiles =~ /(src\/|Dockerfile|package.json)/) {
+                env.SOURCE_CHANGED = "true"
+            } else {
+                env.SOURCE_CHANGED = "false"
             }
 
-            def versionNumber = currentTag.replace("v", "").toInteger()
-            versionNumber++
-
-            env.NEW_TAG = "v${versionNumber}"
-
-            echo "Current Tag = ${currentTag}"
-            echo "New Tag = ${env.NEW_TAG}"
+            echo "SOURCE_CHANGED=${env.SOURCE_CHANGED}"
         }
     }
 }
