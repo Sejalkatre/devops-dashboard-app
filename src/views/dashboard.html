@@ -2,44 +2,127 @@
 <html>
 <head>
 <title>DevOps Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Main card */
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    padding: 30px;
+    border-radius: 20px;
+    width: 420px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+/* Title */
+h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #ffffff;
+}
+
+/* Info blocks */
+.info {
+    margin: 12px 0;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+}
+
+/* Buttons */
+button {
+    margin: 10px 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.load10 {
+    background: #00c6ff;
+    color: black;
+}
+
+.load30 {
+    background: #ff6a00;
+    color: black;
+}
+
+button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+/* Labels */
+.label {
+    font-weight: bold;
+    color: #ffd700;
+}
+
+</style>
 </head>
 
 <body>
 
-<h1>DevOps Operations Dashboard</h1>
+<div class="container">
 
-<h3 id="version"></h3>
+    <h1>🚀 DevOps Operations Dashboard</h1>
 
-<h3 id="hostname"></h3>
+    <div class="info">
+        <span class="label">Version:</span>
+        <h3 id="version">Loading...</h3>
+    </div>
 
-<h3 id="environment"></h3>
+    <div class="info">
+        <span class="label">Pod:</span>
+        <h3 id="hostname">Loading...</h3>
+    </div>
 
-<button onclick="window.open('/api/load?duration=10')">
-Generate 10s Load
-</button>
+    <div class="info">
+        <span class="label">Environment:</span>
+        <h3 id="environment">Loading...</h3>
+    </div>
 
-<button onclick="window.open('/api/load?duration=30')">
-Generate 30s Load
-</button>
+    <button class="load10" onclick="window.open('/api/load?duration=10')">
+        ⚡ Generate 10s Load
+    </button>
+
+    <button class="load30" onclick="window.open('/api/load?duration=30')">
+        🔥 Generate 30s Load
+    </button>
+
+</div>
 
 <script>
 
 fetch('/api/version')
-.then(r=>r.json())
-.then(d=>{
-document.getElementById('version')
-.innerText='Version : '+d.version;
+.then(r => r.json())
+.then(d => {
+    document.getElementById('version').innerText = d.version;
 });
 
 fetch('/api/config')
-.then(r=>r.json())
-.then(d=>{
-document.getElementById('environment')
-.innerText='Environment : '+d.environment;
+.then(r => r.json())
+.then(d => {
+    document.getElementById('environment').innerText = d.environment;
 });
 
-document.getElementById('hostname')
-.innerText='Pod : '+window.location.hostname;
+document.getElementById('hostname').innerText =
+    window.location.hostname;
 
 </script>
 
