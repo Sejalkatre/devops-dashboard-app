@@ -7,7 +7,6 @@ COPY package*.json ./
 RUN npm ci
 
 COPY src ./src
-COPY app.js .
 
 RUN chown -R node:node /app
 
