@@ -121,10 +121,10 @@ fetch('/api/config')
     document.getElementById('environment').innerText = d.environment;
 });
 
+// ✅ FIXED LINE (Sonar compliant)
 document.getElementById('hostname').innerText =
-    window.location.hostname;
+    globalThis.location.hostname;
 
 </script>
-
 </body>
 </html>
