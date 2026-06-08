@@ -79,6 +79,42 @@ pipeline {
     }
 }
 
+    stage('Generate Version') {
+    when {
+        expression {
+            env.SOURCE_CHANGED == "true"
+        }
+    }
+
+    steps {
+        script {
+
+            sh """
+            rm -rf gitops-version
+            git clone https://github.com/Sejalkatre/devops-dashboard-gitops.git gitops-version
+            """
+
+            def currentTag = sh(
+                script: """
+                grep 'image:' gitops-version/environments/dev/deployment.yaml \
+                | awk -F':' '{print \$NF}'
+                """,
+                returnStdout: true
+            ).trim()
+
+            if (!currentTag) {
+                currentTag = "v0"
+            }
+
+            def versionNumber = currentTag.replace("v","").toInteger()
+            versionNumber++
+
+            env.NEW_TAG = "v${versionNumber}"
+
+            echo "New Version = ${env.NEW_TAG}"
+        }
+    }
+}
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:${env.NEW_TAG} ."
