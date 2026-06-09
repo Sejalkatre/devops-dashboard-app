@@ -172,18 +172,51 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            echo "✅ Pipeline Successful"
-            echo "Docker Image: ${IMAGE_NAME}:${env.NEW_TAG}"
-        }
+   post {
 
-        failure {
-            echo "❌ Pipeline Failed"
-        }
+    success {
+        echo "✅ Pipeline Successful"
+        echo "Docker Image: ${IMAGE_NAME}:${env.NEW_TAG}"
 
-        always {
-            cleanWs()
-        }
+        mail(
+            to: 'sejalkatre021@gmail.com',
+            subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+Pipeline Status : SUCCESS
+
+Job Name     : ${env.JOB_NAME}
+Build Number : ${env.BUILD_NUMBER}
+Docker Image : ${IMAGE_NAME}:${env.NEW_TAG}
+
+GitOps repository updated successfully.
+
+Build URL:
+${env.BUILD_URL}
+"""
+        )
+    }
+
+    failure {
+        echo "❌ Pipeline Failed"
+
+        mail(
+            to: 'sejalkatre021@gmail.com',
+            subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+Pipeline Status : FAILURE
+
+Job Name     : ${env.JOB_NAME}
+Build Number : ${env.BUILD_NUMBER}
+
+Please check the Jenkins console logs.
+
+Build URL:
+${env.BUILD_URL}
+"""
+        )
+    }
+
+    always {
+        cleanWs()
     }
 }
