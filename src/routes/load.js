@@ -9,15 +9,12 @@ const {
 router.get('/', (req, res) => {
 
     const duration =
-        parseInt(req.query.duration || "10");
+        Number.parseInt(req.query.duration || "10", 10);
 
     generateLoad(duration);
 
     res.json({
-
-        message:
-            `Load generated for ${duration} seconds`
-
+        message: `Load generated for ${duration} seconds`
     });
 
 });
