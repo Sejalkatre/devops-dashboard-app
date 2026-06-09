@@ -78,30 +78,29 @@ pipeline {
             }
         }
 
-        stage('Generate Version') {
-            when {
-                expression { env.SOURCE_CHANGED == "true" }
-            }
+       stage('Generate Version') {
+    when {
+        expression { env.SOURCE_CHANGED == "true" }
+    }
 
-            steps {
-                script {
+    steps {
+        script {
 
-                    // Git commit short SHA
-                    def commit = sh(
-                        script: "git rev-parse --short HEAD",
-                        returnStdout: true
-                    ).trim()
+            def commit = sh(
+                script: "git rev-parse --short HEAD",
+                returnStdout: true
+            ).trim()
 
-                    // Build number
-                    def buildNum = env.BUILD_NUMBER
+            def buildNum = env.BUILD_NUMBER
 
-                    // FINAL VERSION
-                    env.NEW_TAG = "${MAJOR_VERSION}-${buildNum}-${commit}"
+            def branch = env.BRANCH_NAME.replaceAll('/', '-')
 
-                    echo "Generated Version = ${env.NEW_TAG}"
-                }
-            }
+            env.NEW_TAG = "${branch}-${buildNum}-${commit}"
+
+            echo "Generated Image Tag = ${env.NEW_TAG}"
         }
+    }
+}
 
         stage('Build Docker Image') {
             when {
