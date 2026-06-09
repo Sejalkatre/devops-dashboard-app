@@ -78,7 +78,7 @@ pipeline {
             }
         }
 
-        stage('Generate Version (Option 3)') {
+        stage('Generate Version') {
             when {
                 expression { env.SOURCE_CHANGED == "true" }
             }
